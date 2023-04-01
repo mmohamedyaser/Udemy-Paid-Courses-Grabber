@@ -2,11 +2,13 @@
 animation = ["[■□□□□□□□□□]","[■■□□□□□□□□]", "[■■■□□□□□□□]", "[■■■■□□□□□□]", "[■■■■□□□□□□]", "[■■■■■□□□□□]", "[■■■■■■□□□□]", "[■■■■■■■□□□]", "[■■■■■■■■□□]", "[■■■■■■■■■□]", "[■■■■■■■■■□]", "[■■■■■■■■■■]"]
 
 LEARNVIR = 'https://udemycoupon.learnviral.com/coupon-category/free100-discount/page/'
-REALDISC = 'https://www.real.discount/new/page/'
+REALDISC = 'https://www.real.discount/free-courses/?page='
 UDEMYFREEBIES = 'https://www.udemyfreebies.com/free-udemy-courses/'
 UDEMYCOUPONS = 'https://udemycoupons.me/page/'
 DISCUD = 'https://www.discudemy.com/all/'
 TRICKSINF = 'https://tricksinfo.net/page/'
+ONLINECOURSES = "https://www.onlinecourses.ooo/page/"
+COURSEVANIA = 'https://coursevania.com/wp-admin/admin-ajax.php?offset=0&template=courses%2Fgrid&args=%7B%22image_d%22%3A%22img-480-380%22%2C%22per_row%22%3A%224%22%2C%22posts_per_page%22%3A%2295%22%2C%22class%22%3A%22archive_grid%22%7D&action=stm_lms_load_content&sort=date_high&nonce='
 WEBCART = 'https://www.freewebcart.com/page/'
 COURSEMANIA = 'https://api.coursemania.xyz/api/get_courses'
 HELPCOV = 'https://asia-east2-myhelpcovid19.cloudfunctions.net/app/courses?pagesize=50&source=udemy'
@@ -21,10 +23,12 @@ total_sites = [
     'Udemy Coupons',
     'Real Discount',
     'Tricks Info',
+    'onlinecourses.ooo',
+    'Course Vania',
     'Free Web Cart',
     'Course Mania',
     'Jojo Coupons',
     "Online Tutorials"
 ]
 
-site_range = [10, 12, 6, 10, 6, 7, 2, 4, 4]
+site_range = [4, 6, 6, 3, 1, 2, 2, 1, 1, 1, 1] # all working

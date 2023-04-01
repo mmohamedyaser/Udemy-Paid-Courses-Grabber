@@ -1,3 +1,4 @@
+# from IPython.core import payload
 import browser_cookie3
 import urllib3
 import requests
@@ -22,6 +23,8 @@ func_list = [
     lambda page : udemy_coupons_me(page),
     lambda page : real_disc(page),
     lambda page : tricksinfo(page),
+    lambda page : onlinecourses(page),
+    lambda page : coursevania(page),
     lambda page : freewebcart(page),
     lambda page : course_mania(page),
     lambda page : jojocoupons(page),
@@ -69,9 +72,14 @@ def get_course_coupon(url):
         return ''
 
 def free_checkout(CHECKOUT, access_token, csrftoken, coupon, courseID, cookies, head):
-    payload = '{"shopping_cart":{"items":[{"buyableType":"course","buyableId":' + str(courseID) + ',"discountInfo":{"code":"' + coupon + '"},"purchasePrice":{"currency":"INR","currency_symbol":"","amount":0,"price_string":"Free"},"buyableContext":{"contentLocaleId":null}}]},"payment_info":{"payment_vendor":"Free","payment_method":"free-method"}}'
 
-    r = requests.post(CHECKOUT, headers=head, data=payload, cookies=cookies, verify=False)
+    session = requests.session()
+
+    headers = {"X-Checkout-Is-Mobile-App": "false", "Accept": "application/json, text/plain, */*", "X-Requested-With": "XMLHttpRequest", "User-Agent": "Mozilla/5.0 (Linux; Android 10; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.162 Mobile Safari/537.36", "Content-Type": "application/json;charset=UTF-8", "Origin": "https://www.udemy.com", "Sec-Fetch-Site": "same-origin", "Sec-Fetch-Mode": "cors", "Sec-Fetch-Dest": "empty", "Accept-Encoding": "gzip, deflate", "Accept-Language": "en-US,en;q=0.9", "Connection": "close"}
+
+    payload = {"checkout_environment": "Marketplace", "checkout_event": "Submit", "payment_info": {"method_id": "0", "payment_method": "free-method", "payment_vendor": "Free"}, "shopping_info": {"is_cart": False, "items": [{"buyable": {"id": str(courseID), "type": "course"}, "discountInfo": {"code": f"{coupon}"}, "price": {"amount": 0, "currency": "USD"}}]}}
+
+    r = session.post(CHECKOUT, headers=headers, json=payload, cookies=cookies, verify=False)
     return r.json()
 
 def free_enroll(courseID, access_token, cookies, csrftoken, head):
@@ -79,6 +87,10 @@ def free_enroll(courseID, access_token, cookies, csrftoken, head):
     r = requests.get('https://www.udemy.com/course/subscribe/?courseId=' + str(courseID), headers=head, verify=False, cookies=cookies)
     
     r2 = requests.get('https://www.udemy.com/api-2.0/users/me/subscribed-courses/' + str(courseID) + '/?fields%5Bcourse%5D=%40default%2Cbuyable_object_type%2Cprimary_subcategory%2Cis_private', headers=head, verify=False, cookies=cookies)
+
+    print(f"Status Code_free_enroll{r2.status_code}")
+    print(f"Response Json_free_enroll{r2.content}")
+
     return r2.json()
 
 def auto_add(list_st, cookies, access_token, csrftoken, head):
@@ -86,7 +98,7 @@ def auto_add(list_st, cookies, access_token, csrftoken, head):
     index = 0
     global count, paid_only
     while index <= len(list_st) - 1:
-        sp1 = list_st[index].split('||')
+        sp1 = list_st[index].split('|||')
         print(fc + sd + '[' + fm + sb + '*' + fc + sd + '] ' + fr + str(index + 1), fy + sp1[0], end='')
 
         link = getRealUrl(sp1[1])
@@ -94,11 +106,11 @@ def auto_add(list_st, cookies, access_token, csrftoken, head):
         couponID = get_course_coupon(link)
         course_id = get_course_id(link, cookies)
 
+
         if couponID != '' and purchased_text == '':
             slp = ''
             try:
                 js = free_checkout(CHECKOUT, access_token, csrftoken, couponID, course_id, cookies, head)
-
                 try:
                     if js['status'] == 'succeeded':
                         print(fg + ' Successfully Enrolled To Course')
@@ -109,19 +121,22 @@ def auto_add(list_st, cookies, access_token, csrftoken, head):
                         msg = js['detail']
                         print(' ' + fr + msg)
                         slp = int(re.search(r'\d+', msg).group(0))
-                        # index -= 1
+                        index += 1
                     except:
                         print(fr + ' Expired Coupon ' + js['message'])
                         index += 1
                 else:
                     try:
                         if js['status'] == 'failed':
-                            print(fr + ' Coupon Expired :( ')
+                            if 'You have already subscribed to' in js['message']:
+                                print(fy + ' You have already subscribed :) ')
+                            else:
+                                print(fr + ' Coupon Expired :( ')
                             index += 1
                     except:
                         bnn = ''
             except:
-                pass
+                index += 1
             if slp != '':
                 slp += 10
                 print(fc + sd + '----' + fm + sb + '>>' +  fb + ' Pausing execution of script for ' + fr + str(slp) + ' seconds')
@@ -132,6 +147,7 @@ def auto_add(list_st, cookies, access_token, csrftoken, head):
         elif couponID == '' and purchased_text == '':
             if paid_only == False:
                 js = free_enroll(course_id, access_token, cookies, csrftoken, head)
+                print(js)
                 try:
                     if js['_class'] == 'course':
                         print(fg + ' Successfully Subscribed')
@@ -152,7 +168,7 @@ def process(list_st, dd, limit, site_index, cookies, access_token, csrftoken, he
     global d
     print('\n')
     for index, stru in enumerate(list_st, start=1):
-        sp1 = stru.split('||')
+        sp1 = stru.split('|||')
         print(fc + sd + '[' + fm + sb + '*' + fc + sd + '] ' + fr + str(index), fy + sp1[0])
     print('\n' + fc + sd + '----' + fm + sb + '>>' + fb + ' To load more input "m" OR to subscribe any course from above input "y": ', end='')
     input_2 = input()
@@ -167,7 +183,7 @@ def process(list_st, dd, limit, site_index, cookies, access_token, csrftoken, he
             subs = ''
         # print(type(subs))
         if isinstance(subs, int):
-            link = list_st[subs-1].split('||')[1]
+            link = list_st[subs-1].split('|||')[1]
             couponID = get_course_coupon(link)
             course_id = get_course_id(link, cookies)
             if couponID != '' and purchased_text == '':
@@ -248,7 +264,7 @@ def main():
             if cookies_file.exists():
                 fp = open(cookies_file, 'r')
                 try:
-                    fp_toks = fp.read().split('||')
+                    fp_toks = fp.read().split('|||')
                     access_token = fp_toks[0]
                     client_id = fp_toks[1]
                     print(fc + sd + '[' + fm + sb + '*' + fc + sd + '] ' + fg +'Login Successful! \n')
@@ -264,6 +280,7 @@ def main():
                     'x-requested-with': 'XMLHttpRequest',
                     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36',
                     'x-forwarded-for': str(ip),
+                    'Cookie': f"client_id={client_id}; access_token={access_token};",
                     'x-udemy-authorization': 'Bearer ' + access_token,
                     'content-type': 'application/json;charset=UTF-8',
                     'referer': 'https://www.udemy.com/courses/search/?q=free%20courses&src=sac&kw=free',
@@ -325,7 +342,7 @@ def main():
                             site = process(list_st, d, limit, site_index, cookies, access_token, csrftoken, head)
                             d += 1
                     if site == 'Discudemy':
-                        limit = 4
+                        limit = 10
                         print('\n' + fc + sd + '-------' + fm + sb + '>>' + fb +' Discudemy ' + fm + sb + '<<' + fc + sd + '-------\n')
                         while d <= limit:
                             list_st = discudemy(d)
@@ -357,6 +374,20 @@ def main():
                         print('\n' + fc + sd + '-------' + fm + sb + '>>' + fb +' Tricks Info ' + fm + sb + '<<' + fc + sd + '-------\n')
                         while d <= limit:
                             list_st = tricksinfo(d)
+                            site = process(list_st, d, limit, site_index, cookies, access_token, csrftoken, head)
+                            d += 1
+                    if site == 'onlinecourses.ooo':
+                        limit = 8
+                        print('\n' + fc + sd + '-------' + fm + sb + '>>' + fb +' Online Courses.ooo ' + fm + sb + '<<' + fc + sd + '-------\n')
+                        while d <= limit:
+                            list_st = onlinecourses(d)
+                            site = process(list_st, d, limit, site_index, cookies, access_token, csrftoken, head)
+                            d += 1
+                    if site == 'Course Vania':
+                        limit = 1
+                        print('\n' + fc + sd + '-------' + fm + sb + '>>' + fb +' Course Vania ' + fm + sb + '<<' + fc + sd + '-------\n')
+                        while d <= limit:
+                            list_st = coursevania(d)
                             site = process(list_st, d, limit, site_index, cookies, access_token, csrftoken, head)
                             d += 1
                     if site == 'Free Web Cart':
