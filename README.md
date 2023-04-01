@@ -22,6 +22,10 @@ Script to add all udemy paid/free courses having coupons automatically to your u
 - Many popular sites added to grab fresh/new courses (coupons).
 - Many more features
 
+## ***WIP***
+
+***- Only paid courses are working at the moment. Use -p for paid courses.*** 
+
 ## ***Usage***
 
 ***Add all/specific course***
