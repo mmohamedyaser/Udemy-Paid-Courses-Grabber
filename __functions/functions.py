@@ -173,7 +173,7 @@ def tricksinfo(page):
 
     r = requests.get(TRICKSINF + str(page), headers=head, verify=False)
     soup = BeautifulSoup(r.content, 'html.parser')
-    all = soup.find_all('a', class_ = 'post-thumb')
+    all = soup.find_all('a', class_ = 're_track_btn')
     for index, items in enumerate(all):
         title = items['aria-label']
         url2 = items['href']
@@ -224,7 +224,7 @@ def coursevania(page):
     # pattern = re.compile(r"var stm_lms_nonces = '(.*?)';$", re.MULTILINE | re.DOTALL)
     # script = soup.find("script", text=pattern)
     s = soup.findAll('script')
-    pattern = re.compile(r'var stm_lms_nonces = ({.*})', re.MULTILINE | re.DOTALL)
+    # pattern = re.compile(r'var stm_lms_nonces = ({.*})', re.MULTILINE | re.DOTALL)
     for i in range(len(s)):
         try:
             data = json.loads(re.search(r"var stm_lms_nonces = ({.*})", s[i].string).group(1))
@@ -264,7 +264,31 @@ def freewebcart(page):
 
     r = requests.get(WEBCART + str(page), headers=head, verify=False)
     soup = BeautifulSoup(r.content, 'html.parser')
-    all = soup.find_all('h2', class_ = 'title')
+    all = soup.find_all('h2', class_ = 're_track_btn')
+    for index, items in enumerate(all):
+        title = items.text
+        url2 = items.a['href']
+        r2 = requests.get(url2, headers=head, verify=False)
+        sys.stdout.write("\rLOADING URLS: " + animation[index % len(animation)])
+        sys.stdout.flush()
+        soup1 = BeautifulSoup(r2.content, 'html.parser')
+        try:
+            link = soup1.find('a', class_ = 're_track_btn btn_offer_block')['href']
+            links_ls.append(title + '|||' + link)
+        except:
+            pass
+    return links_ls
+
+def couponscorpion(page):
+    links_ls = []
+    head = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
+    }
+
+    r = requests.get(COUPONSCORPION + str(page), headers=head, verify=False)
+    soup = BeautifulSoup(r.content, 'html.parser')
+    all = soup.find_all('h3.a')
     for index, items in enumerate(all):
         title = items.text
         url2 = items.a['href']
